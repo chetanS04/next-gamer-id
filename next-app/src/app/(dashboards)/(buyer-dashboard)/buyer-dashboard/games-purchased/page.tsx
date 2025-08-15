@@ -130,7 +130,12 @@ export default function Page() {
 
                 {!listing.order.buyer_confirmation && (
                   <button
-                    onClick={() => handleBuyerConfirm(listing.order?.id!)}
+                    // onClick={() => handleBuyerConfirm(listing.order?.id!)}
+                    onClick={() => {
+  if (listing.order) {
+    handleBuyerConfirm(listing.order.id);
+  }
+}}
                     className="mt-4 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition"
                   >
                     Confirm as Buyer
