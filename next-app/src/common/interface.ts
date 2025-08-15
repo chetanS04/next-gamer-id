@@ -11,6 +11,8 @@ export enum UserRole {
 }
 
 export interface RegisterUser {
+  phone_number: string;
+  username: string;
   password_confirmation: string;
   password: string;
   email: string;
