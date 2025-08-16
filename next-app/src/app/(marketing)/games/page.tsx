@@ -28,7 +28,8 @@ type Slider = {
 };
 
 // ENV/Design constants
-const imageHost = "http://localhost:8000/storage/";
+const basePath = process.env.NEXT_PUBLIC_UPLOAD_BASE;
+
 const mainBg = "rgb(33, 37, 41)";
 const accentBg = "rgb(5, 51, 69)";
 
@@ -244,7 +245,7 @@ export default function GamesPage() {
                 <div className="relative w-full aspect-video md:aspect-[32/10] bg-gray-900">
                   {slide.image ? (
                     <Image
-                      src={`${imageHost}${slide.image}`}
+                      src={`${basePath}${slide.image}`}
                       alt={slide.title || "Featured Game Slide"}
                       className="absolute inset-0 w-full h-full object-cover"
                       loading="lazy"
@@ -359,7 +360,7 @@ export default function GamesPage() {
                   >
                     {game.primary_image ? (
                       <Image
-                        src={imageHost + game.primary_image}
+                        src={`${basePath}${game.primary_image}`}
                         alt={game.name}
                         className="w-full h-48 object-cover transition-transform group-hover:scale-105 duration-200"
                         loading="lazy"

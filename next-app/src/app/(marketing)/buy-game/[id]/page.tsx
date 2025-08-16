@@ -8,6 +8,8 @@ import { FaStar } from "react-icons/fa";
 import Image from "next/image";
 import { Listing } from "@/common/interface";
 
+const basePath = process.env.NEXT_PUBLIC_UPLOAD_BASE;
+
 const GameListingsPage = () => {
   const { id } = useParams();
   const [listings, setListings] = useState<Listing[]>([]);
@@ -111,7 +113,7 @@ const GameListingsPage = () => {
                             <Image
                               height={600}
                               width={600}
-                              src={`http://localhost:8000/storage/${field.icon}`}
+                              src={`${basePath}${field.icon}`}
                               alt={field.label}
                               className="w-5 h-5 object-contain mt-1"
                             />

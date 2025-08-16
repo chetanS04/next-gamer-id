@@ -11,6 +11,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Image from "next/image";
 import { Game, GameField } from "@/common/interface";
 
+const basePath = process.env.NEXT_PUBLIC_UPLOAD_BASE;
+
 interface IFormValues {
   [key: string]: string | number | FileList | undefined;
 }
@@ -23,7 +25,6 @@ const GameForm = () => {
   const [fetchError, setFetchError] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState("");
   const [submitError, setSubmitError] = useState("");
-
 
   const validationSchema = React.useMemo(() => {
     const shape: { [key: string]: yup.AnySchema } = {};
@@ -231,7 +232,7 @@ const GameForm = () => {
                           <Image
                             height={600}
                             width={600}
-                            src={`http://localhost:8000/storage/${field.icon}`}
+                            src={`${basePath}${field.icon}`}
                             alt={field?.label}
                             className="h-10 w-10 object-contain drop-shadow drop-shadow-orange-950"
                           />

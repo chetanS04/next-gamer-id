@@ -60,7 +60,8 @@ function GameCommonField() {
   const [previewPrimary, setPreviewPrimary] = useState<string | null>(null);
   const [games, setGames] = useState<GameCommonFieldType[]>([]);
   const { showLoader, hideLoader } = useLoader();
-  const baseUrl = "http://localhost:8000/storage/";
+
+  const basePath = process.env.NEXT_PUBLIC_UPLOAD_BASE;
 
   const {
     register,
@@ -99,7 +100,7 @@ function GameCommonField() {
       setValue("name", game.name);
       setValue("type", game.type);
       setPreviewPrimary(
-        game.icon_image ? `${baseUrl}${game.icon_image}` : null
+        game.icon_image ? `${basePath}${game.icon_image}` : null
       );
     } else {
       reset({
@@ -241,7 +242,7 @@ function GameCommonField() {
                     <td className="px-6 py-4">
                       {game.icon_image ? (
                         <Image
-                          src={`http://localhost:8000/storage/${game.icon_image}`}
+                          src={`${basePath}${game.icon_image}`}
                           alt={game.name}
                           width={56}
                           height={56}

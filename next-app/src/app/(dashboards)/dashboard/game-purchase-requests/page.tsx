@@ -5,12 +5,13 @@ import axios from "../../../../../utils/axios";
 import { Order, TopupOrder } from "@/common/interface";
 import Image from "next/image";
 
+const basePath = process.env.NEXT_PUBLIC_UPLOAD_BASE;
+
 export default function AdminOrdersDashboard() {
   const [gamerOrders, setGamerOrders] = useState<Order[]>([]);
   const [topupOrders, setTopupOrders] = useState<TopupOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"gamer" | "topup">("gamer");
-  
 
   useEffect(() => {
     Promise.all([fetchGamerOrders(), fetchTopupOrders()]).finally(() =>
@@ -175,10 +176,10 @@ export default function AdminOrdersDashboard() {
                     .map((img, i) => (
                       <Image
                         key={i}
-                        src={`http://localhost:8000/storage/${img}`}
-                        alt={''}
-                           height={800}
-                    width={800}
+                        src={`${basePath}${img}`}
+                        alt={""}
+                        height={800}
+                        width={800}
                         className="w-16 h-16 object-cover rounded"
                       />
                     ))}

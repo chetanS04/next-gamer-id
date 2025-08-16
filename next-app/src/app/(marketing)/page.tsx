@@ -15,7 +15,6 @@ import gameCard3 from "@/public/gameCard3.webp";
 import gameCard4 from "@/public/gameCard4.webp";
 import gameCard5 from "@/public/gameCard5.webp";
 
-
 import Image from "next/image";
 import {
   FaBolt,
@@ -33,7 +32,8 @@ import { Faq, Game, Slider } from "@/common/interface";
 import { useAuth } from "@/context/AuthContext";
 
 // ENV/Design constants
-const imageHost = "http://localhost:8000/storage/";
+const basePath = process.env.NEXT_PUBLIC_UPLOAD_BASE;
+
 const mainBg = "rgb(33, 37, 41)";
 const accentBg = "rgb(5, 51, 69)";
 
@@ -45,7 +45,6 @@ export default function GamesPage() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const router = useRouter();
   const { user } = useAuth();
-
 
   useEffect(() => {
     axios
@@ -168,7 +167,7 @@ export default function GamesPage() {
                     <div className="relative z-0 aspect-[32/10] overflow-hidden rounded-xl bg-gray-900  ">
                       {slide.image ? (
                         <Image
-                          src={`${imageHost}${slide.image}`}
+                          src={`${basePath}${slide.image}`}
                           alt={slide.title || "Featured Game Slide"}
                           className="absolute -z-10 inset-0 w-full h-full object-cover"
                           loading="lazy"
@@ -573,15 +572,12 @@ export default function GamesPage() {
 
       {/* Exclusive Offers section end */}
 
-
-
       {user && (user.role === "Admin" || user.role === "Seller") && (
         <section className="p-6 bg-blue-100">
-          <h2 className="text-xl font-bold">
-            Special Section for {user.role}
-          </h2>
+          <h2 className="text-xl font-bold">Special Section for {user.role}</h2>
           <p>
-            Only logged-in <strong>Buyers</strong> or <strong>Sellers</strong> can see this.
+            Only logged-in <strong>Buyers</strong> or <strong>Sellers</strong>{" "}
+            can see this.
           </p>
         </section>
       )}
@@ -589,16 +585,21 @@ export default function GamesPage() {
       <section className="my-24">
         <div className="container">
           <div className="sectionHeader">
-            <h2 className="lg:text-3xl text-2xl text-white font-bold mb-7">TopUps Available</h2>
+            <h2 className="lg:text-3xl text-2xl text-white font-bold mb-7">
+              TopUps Available
+            </h2>
           </div>
           <div className="flex flex-wrap justify-start items-stretch gap-5">
             {topUps.map((game) => (
-              <div key={game.game_id} className="max-w-[277px] flex-[1_1_277px]">
+              <div
+                key={game.game_id}
+                className="max-w-[277px] flex-[1_1_277px]"
+              >
                 <div className="card border border-orange-200 transition-all duration-300 hover:shadow-2xl shadow-orange-300 overflow-hidden relative group p-2 rounded-3xl z-0">
                   {/* Main Game Image */}
                   <Image
-                    src={`http://localhost:8000/storage/${game.primary_image}`}
-                    alt={''}
+                    src={`${basePath}${game.primary_image}`}
+                    alt={""}
                     height={800}
                     width={800}
                     className="h-[500px] w-full rounded-xl block transition-all duration-300 group-hover:scale-110 object-cover"
@@ -611,8 +612,8 @@ export default function GamesPage() {
                       <div className="flex justify-start items-center gap-2">
                         <div className="logo size-16 rounded-lg shadow shadow-orange-600/10 aspect-square overflow-hidden">
                           <Image
-                            src={`http://localhost:8000/storage/${game.primary_image}`}
-                            alt={''}
+                            src={`${basePath}${game.primary_image}`}
+                            alt={""}
                             height={800}
                             width={800}
                             className="h-full w-full rounded-xl block object-cover transition-all duration-300 group-hover:scale-110"
@@ -627,7 +628,9 @@ export default function GamesPage() {
                         </h4>
 
                         <button
-                          onClick={() => router.push(`/top-up-game/${game.game_id}`)}
+                          onClick={() =>
+                            router.push(`/top-up-game/${game.game_id}`)
+                          }
                           className="lg:rotate-x-180 lg:group-hover:rotate-x-0 border border-orange-400 rounded text-center h-10  w-full lg:group-hover:bg-orange-400 transition-all duration-300 delay-300 cursor-pointer"
                         >
                           Top Up Now
@@ -653,7 +656,11 @@ export default function GamesPage() {
             {gameBuyCard.map((item, index) => (
               <div key={index} className="max-w-[277px] flex-[1_1_277px]">
                 <div className="card .border border-orange-200 transition-all duration-300 hover:shadow-2xl shadow-orange-300 overflow-hidden relative group p-2 rounded-3xl z-0">
-                  <Image src={item} alt="Game Buy Card" className="h-[500px] w-full rounded-xl block transition-all duration-300 group-hover:scale-110 object-cover" />
+                  <Image
+                    src={item}
+                    alt="Game Buy Card"
+                    className="h-[500px] w-full rounded-xl block transition-all duration-300 group-hover:scale-110 object-cover"
+                  />
                   <div className="absolute bg-gradient-to-t from-black/60 to-white/0 inset-0 z-10 flex p-5 items-end justify-start">
                     <div className="content">
                       <div className="flex justify-start items-center gap-2">
@@ -715,7 +722,7 @@ export default function GamesPage() {
                       <Image
                         height={600}
                         width={600}
-                        src={imageHost + game.primary_image}
+                        src={`${basePath}${game.primary_image}`}
                         alt={game.name}
                         className="w-full h-48 object-cover transition-transform group-hover:scale-105 duration-200"
                         loading="lazy"
@@ -771,7 +778,7 @@ export default function GamesPage() {
                 >
                   {game.primary_image ? (
                     <Image
-                      src={imageHost + game.primary_image}
+                      src={`${basePath}${game.primary_image}`}
                       alt={game.name}
                       height={600}
                       width={600}
@@ -828,11 +835,10 @@ export default function GamesPage() {
             {games.map((game) => (
               <div key={game.id} className="max-w-[277px] flex-[1_1_277px]">
                 <div className="card border border-orange-200 transition-all duration-300 hover:shadow-2xl shadow-orange-300 overflow-hidden relative group p-2 rounded-3xl z-0">
-
                   {/* Game Main Image */}
                   {game.primary_image ? (
                     <Image
-                      src={imageHost + game.primary_image}
+                      src={`${basePath}${game.primary_image}`}
                       alt={game.name}
                       height={600}
                       width={600}
@@ -852,7 +858,7 @@ export default function GamesPage() {
                       <div className="flex justify-start items-center gap-2">
                         <div className="logo size-16 rounded-lg shadow shadow-orange-600/10 aspect-square overflow-hidden">
                           <Image
-                            src={imageHost + game.primary_image}
+                            src={`${basePath}${game.primary_image}`}
                             alt={game.name}
                             height={100}
                             width={100}
@@ -882,12 +888,13 @@ export default function GamesPage() {
         </div>
       </section>
 
-
       <section className="my-24">
         <div className="container mx-auto px-4">
           {/* Section Title */}
           <div className="sectionHeader mb-7">
-            <h2 className="lg:text-3xl text-2xl text-white font-bold">Buy Games</h2>
+            <h2 className="lg:text-3xl text-2xl text-white font-bold">
+              Buy Games
+            </h2>
           </div>
 
           {/* Game Cards Grid */}
@@ -895,11 +902,10 @@ export default function GamesPage() {
             {games.map((game) => (
               <div key={game.id} className="max-w-[277px] flex-[1_1_277px]">
                 <div className="card border border-orange-200 transition-all duration-300 hover:shadow-2xl shadow-orange-300 overflow-hidden relative group p-2 rounded-3xl z-0">
-
                   {/* Game Main Image */}
                   {game.primary_image ? (
                     <Image
-                      src={imageHost + game.primary_image}
+                      src={`${basePath}${game.primary_image}`}
                       alt={game.name}
                       height={600}
                       width={600}
@@ -919,7 +925,7 @@ export default function GamesPage() {
                       <div className="flex justify-start items-center gap-2">
                         <div className="logo size-16 rounded-lg shadow shadow-orange-600/10 aspect-square overflow-hidden">
                           <Image
-                            src={imageHost + game.primary_image}
+                            src={`${basePath}${game.primary_image}`}
                             alt={game.name}
                             height={100}
                             width={100}
@@ -949,8 +955,6 @@ export default function GamesPage() {
         </div>
       </section>
 
-
-
       <section className=" my-24 px-2 text-white">
         <div className="container">
           <h2 className="text-3xl font-bold mb-1">ID Bazar Advantage</h2>
@@ -963,21 +967,24 @@ export default function GamesPage() {
               {features.map((f, i) => (
                 <div
                   key={i}
-                  className={`rounded-lg p-4 shadow ${f.highlight ? "bg-orange-400 text-white" : "bg-gc-900"
-                    }`}
+                  className={`rounded-lg p-4 shadow ${
+                    f.highlight ? "bg-orange-400 text-white" : "bg-gc-900"
+                  }`}
                 >
                   <div className="flex items-center gap-3 mb-2">
                     {f.icon}
                     <span
-                      className={`font-semibold ${f.highlight ? "text-white" : ""
-                        }`}
+                      className={`font-semibold ${
+                        f.highlight ? "text-white" : ""
+                      }`}
                     >
                       {f.title}
                     </span>
                   </div>
                   <p
-                    className={`text-sm ${f.highlight ? "text-white" : "text-gray-300"
-                      }`}
+                    className={`text-sm ${
+                      f.highlight ? "text-white" : "text-gray-300"
+                    }`}
                   >
                     {f.desc}
                   </p>
@@ -1040,10 +1047,11 @@ export default function GamesPage() {
                 {/* {activeIndex === index && (
                 )} */}
                 <div
-                  className={`grid transition-all duration-300 ${activeIndex === index
+                  className={`grid transition-all duration-300 ${
+                    activeIndex === index
                       ? "grid-rows-[1fr]"
                       : "grid-rows-[0fr]"
-                    }`}
+                  }`}
                 >
                   <div className="overflow-hidden">
                     <div

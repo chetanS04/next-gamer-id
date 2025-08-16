@@ -5,6 +5,8 @@ import axios from "../../../../../../utils/axios";
 import { Listing } from "@/common/interface";
 import Image from "next/image";
 
+const basePath = process.env.NEXT_PUBLIC_UPLOAD_BASE;
+
 export default function Page() {
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
@@ -132,10 +134,10 @@ export default function Page() {
                   <button
                     // onClick={() => handleBuyerConfirm(listing.order?.id!)}
                     onClick={() => {
-  if (listing.order) {
-    handleBuyerConfirm(listing.order.id);
-  }
-}}
+                      if (listing.order) {
+                        handleBuyerConfirm(listing.order.id);
+                      }
+                    }}
                     className="mt-4 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition"
                   >
                     Confirm as Buyer
@@ -153,10 +155,10 @@ export default function Page() {
                 <div className="flex flex-col md:flex-row gap-4 items-start">
                   {listing.order.game.primary_image && (
                     <Image
-                      src={`http://localhost:8000/storage/${listing.order.game.primary_image}`}
-                      alt={''}
-                         height={800}
-                    width={800}
+                      src={`${basePath}${listing.order.game.primary_image}`}
+                      alt={""}
+                      height={800}
+                      width={800}
                       className="w-32 h-32 object-cover rounded-xl border border-gray-300"
                     />
                   )}

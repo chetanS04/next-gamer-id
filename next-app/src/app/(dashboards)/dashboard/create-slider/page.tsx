@@ -18,6 +18,8 @@ import { Slider } from "@/common/interface";
 
 const MAX_FILE_SIZE = 7 * 1024 * 1024;
 
+const basePath = process.env.NEXT_PUBLIC_UPLOAD_BASE;
+
 // type FormData = {
 //   title: string;
 //   description: string;
@@ -164,7 +166,7 @@ export default function SliderManagement() {
       setValue("title", slider.title);
       setValue("description", slider.description);
       setValue("status", slider.status);
-      setPreviewImage(`http://localhost:8000/storage/${slider.image}`);
+      setPreviewImage(`ht${slider.image}`);
     } else {
       reset();
       setPreviewImage(null);
@@ -261,7 +263,7 @@ export default function SliderManagement() {
                     <td className="px-2 py-4">
                       {slider?.image ? (
                         <Image
-                          src={`http://localhost:8000/storage/${slider.image}`}
+                          src={`${basePath}${slider.image}`}
                           alt={slider?.title}
                           width={160} // equivalent to w-40
                           height={56} // equivalent to h-14

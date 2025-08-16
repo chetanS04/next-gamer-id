@@ -1,9 +1,11 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import axios from '../../../../utils/axios';
+import React, { useEffect, useState } from "react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import axios from "../../../../utils/axios";
+
+const basePath = process.env.NEXT_PUBLIC_UPLOAD_BASE;
 
 // ---------- Interfaces ----------
 interface Seller {
@@ -50,10 +52,10 @@ export default function SellerStoreGamesPage() {
 
   const getSellerDetail = async () => {
     try {
-      const res = await axios.get('/api/seller-store-games');
+      const res = await axios.get("/api/seller-store-games");
       setSellerData(res.data);
     } catch (error) {
-      console.error('Error fetching seller data', error);
+      console.error("Error fetching seller data", error);
     } finally {
       setLoading(false);
     }
@@ -82,17 +84,25 @@ export default function SellerStoreGamesPage() {
       {/* Seller Info */}
       {seller && (
         <div className=" backdrop-blur-sm shadow-xl rounded-2xl p-6 mb-10 border bg-[rgb(28,28,28)]">
-          <h1 className="text-3xl font-bold mb-4 text-white">{seller.store_name}</h1>
+          <h1 className="text-3xl font-bold mb-4 text-white">
+            {seller.store_name}
+          </h1>
           <div className="text-gray-300 space-y-2">
-            <p>Email: <span className="text-gray-100">{seller.email}</span></p>
-            <p>Phone: <span className="text-gray-100">{seller.phone_number}</span></p>
+            <p>
+              Email: <span className="text-gray-100">{seller.email}</span>
+            </p>
+            <p>
+              Phone:{" "}
+              <span className="text-gray-100">{seller.phone_number}</span>
+            </p>
             <p>
               Status:
               <span
-                className={`ml-2 px-2 py-0.5 rounded text-sm font-semibold ${seller.user_status === 'active'
-                    ? 'bg-green-600 text-white'
-                    : 'bg-red-600 text-white'
-                  }`}
+                className={`ml-2 px-2 py-0.5 rounded text-sm font-semibold ${
+                  seller.user_status === "active"
+                    ? "bg-green-600 text-white"
+                    : "bg-red-600 text-white"
+                }`}
               >
                 {seller.user_status}
               </span>
@@ -106,14 +116,16 @@ export default function SellerStoreGamesPage() {
         {game_listings?.map((listing) => (
           <div
             key={listing.listing_id}
-            onClick={() => router.push(`/buy-game/1/game-detail/${listing.listing_id}`)}
+            onClick={() =>
+              router.push(`/buy-game/1/game-detail/${listing.listing_id}`)
+            }
             className="group flex flex-col md:flex-row bg-[rgb(28,28,28)] border border-gray-700 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl cursor-pointer transition-transform transform hover:-translate-y-1 hover:scale-[1.01] duration-300"
           >
             {/* Image Section */}
             <div className="md:w-1/8 relative">
               {listing.game?.primary_image ? (
                 <Image
-                  src={`http://localhost:8000/storage/${listing.game.primary_image}`}
+                  src={`${basePath}${listing.game.primary_image}`}
                   alt={listing.game.name}
                   width={500}
                   height={300}
@@ -130,12 +142,18 @@ export default function SellerStoreGamesPage() {
             <div className="flex-1 p-5 flex flex-col justify-between">
               {/* Title and Price */}
               <div>
-                <h2 className="text-2xl font-bold text-white">{listing.game?.name || 'Unnamed Game'}</h2>
+                <h2 className="text-2xl font-bold text-white">
+                  {listing.game?.name || "Unnamed Game"}
+                </h2>
                 <p className="text-gray-400 mt-1">
                   Price:
-                  <span className="text-green-400 font-semibold ml-1">${listing.price}</span>
+                  <span className="text-green-400 font-semibold ml-1">
+                    ${listing.price}
+                  </span>
                 </p>
-                <p className="text-sm text-gray-500">Status: {listing.status}</p>
+                <p className="text-sm text-gray-500">
+                  Status: {listing.status}
+                </p>
               </div>
 
               {/* Fields */}
@@ -147,7 +165,7 @@ export default function SellerStoreGamesPage() {
                   >
                     {field.icon && (
                       <Image
-                        src={`http://localhost:8000/storage/${field.icon}`}
+                        src={`${basePath}${field.icon}`}
                         alt={field.label}
                         width={20}
                         height={20}
@@ -155,8 +173,12 @@ export default function SellerStoreGamesPage() {
                       />
                     )}
                     <div className="flex flex-col">
-                      <span className="text-sm text-gray-400">{field.label}</span>
-                      <span className="text-white font-medium">{field.value}</span>
+                      <span className="text-sm text-gray-400">
+                        {field.label}
+                      </span>
+                      <span className="text-white font-medium">
+                        {field.value}
+                      </span>
                     </div>
                   </div>
                 ))}
@@ -165,7 +187,6 @@ export default function SellerStoreGamesPage() {
           </div>
         ))}
       </div>
-
     </div>
   );
 }

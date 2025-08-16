@@ -105,8 +105,7 @@ const KycSellerDetailPage = () => {
     setMediaModal({ ...mediaModal, open: false });
   }
 
-  const basePath =
-    process.env.NEXT_PUBLIC_UPLOAD_BASE || "http://localhost:8000/storage/";
+  const basePath = process.env.NEXT_PUBLIC_UPLOAD_BASE;
 
   useEffect(() => {
     if (id) fetchKycDetail();

@@ -16,6 +16,8 @@ const FIELD_TYPES = [
   { value: "number", label: "Number" },
 ];
 
+const basePath = process.env.NEXT_PUBLIC_UPLOAD_BASE;
+
 const MAX_FILE_SIZE = 8 * 1024 * 1024;
 const SUPPORTED_FORMATS = [
   "image/jpeg",
@@ -203,9 +205,7 @@ const Page = () => {
   });
 
   // Top-up Form
-  const {
-    reset: resetTopup,
-  } = useForm<TopupFormValues>({
+  const { reset: resetTopup } = useForm<TopupFormValues>({
     resolver: yupResolver(topupSchema),
     defaultValues: {
       currency_name: "",
@@ -230,9 +230,7 @@ const Page = () => {
         status: field.status ?? true,
         icon: null,
       });
-      setIconPreview(
-        field.icon ? `http://localhost:8000/storage/${field.icon}` : null
-      );
+      setIconPreview(field.icon ? `${basePath}${field.icon}` : null);
       setPreviewPrimary(null);
     } else {
       resetField({
@@ -306,9 +304,6 @@ const Page = () => {
       hideLoader();
     }
   };
-
-
-
 
   const handleTopupDelete = async (id: number) => {
     if (!window.confirm("Are you sure you want to delete this top-up?")) return;
@@ -438,7 +433,7 @@ const Page = () => {
                     <td className="px-6 py-4">
                       {f.icon ? (
                         <Image
-                          src={`http://localhost:8000/storage/${f.icon}`}
+                          src={`${basePath}${f.icon}`}
                           alt={""}
                           height={600}
                           width={600}
@@ -538,10 +533,10 @@ const Page = () => {
                   <td className="px-4 py-2 border text-center">
                     {topup.currency_image ? (
                       <Image
-                        src={`http://localhost:8000/storage/${topup.currency_image}`}
+                        src={`${basePath}${topup.currency_image}`}
                         alt=""
-                           height={800}
-                    width={800}
+                        height={800}
+                        width={800}
                         className="h-10 w-10 object-cover rounded"
                       />
                     ) : (
