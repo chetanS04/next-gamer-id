@@ -4,6 +4,7 @@ import axios from 'axios';
 const instance = axios.create({
   // baseURL: 'http://localhost:8000',
   baseURL: 'https://www.api.idbazaar.topntech.com',
+  withXSRFToken: true,
   withCredentials: true,
 });
 
