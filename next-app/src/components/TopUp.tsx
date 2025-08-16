@@ -282,7 +282,7 @@
 // }"use client";
 
 import React, { useEffect, useState } from "react";
-import { useForm, useFieldArray, SubmitHandler } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 import axios from "../../utils/axios";
@@ -291,15 +291,19 @@ import axios from "../../utils/axios";
 type PackageInput = {
   currency_amount: number;
   price: number;
-  description?: string;
-  sort_order?: number;
+  description?: string | null; 
+  sort_order?: number | null;  
 };
 
 type FormValues = {
   currency_name: string;
   currency_image?: FileList;
-  packages: PackageInput[];
+  packages: PackageInput[]; 
 };
+
+
+
+
 
 type TopupFormProps = {
   gameId: number;
@@ -323,8 +327,23 @@ const schema = Yup.object({
       if (!value || value.length === 0) return true;
       return ["image/jpeg", "image/png", "image/webp"].includes(value[0].type);
     }),
-  packages: Yup.array()
-    .of(
+  // packages: Yup.array()
+  //   .of(
+  //     Yup.object({
+  //       currency_amount: Yup.number()
+  //         .typeError("Must be a number")
+  //         .min(1, "Must be at least 1")
+  //         .required("Amount is required"),
+  //       price: Yup.number()
+  //         .typeError("Must be a number")
+  //         .min(0, "Price cannot be negative")
+  //         .required("Price is required"),
+  //       description: Yup.string().nullable(),
+  //       sort_order: Yup.number().typeError("Must be a number").nullable(),
+  //     })
+  //   )
+  //   .min(1, "At least one package is required").optional(),
+  packages: Yup.array().of(
       Yup.object({
         currency_amount: Yup.number()
           .typeError("Must be a number")
@@ -338,7 +357,9 @@ const schema = Yup.object({
         sort_order: Yup.number().typeError("Must be a number").nullable(),
       })
     )
-    .min(1, "At least one package is required"),
+  .min(1, "At least one package is required")
+  .required("At least one package is required"),
+
 });
 
 export default function TopupForm({
@@ -348,13 +369,17 @@ export default function TopupForm({
 }: TopupFormProps) {
   const [loading, setLoading] = useState(false);
 
+
+
+
   const {
     register,
     handleSubmit,
     control,
     reset,
     formState: { errors },
-  } = useForm<FormValues>({
+
+  } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
       currency_name: "",
@@ -388,7 +413,7 @@ export default function TopupForm({
   }, [editingTopup, reset]);
 
   // Submit handler
-  const onSubmit: SubmitHandler<FormValues> = async (data) => {
+  const onSubmit = async (data: FormValues) => {
     try {
       setLoading(true);
 
