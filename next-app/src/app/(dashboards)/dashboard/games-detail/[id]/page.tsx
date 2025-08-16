@@ -39,6 +39,7 @@ type GameField = {
 };
 
 type TopupData = {
+  packages: never[];
   currency_amount: ReactNode;
   id: number;
   game?: { name?: string };
@@ -51,13 +52,15 @@ type TopupData = {
   sort_order: number;
 };
 
-type FieldFormValues = {
+interface FieldFormValues {
   label: string;
   type: string;
   is_filterable: boolean;
   status: boolean;
-  icon: File | null;
-};
+icon: yup.Maybe<string | File | null | undefined>;
+}
+
+
 
 type TopupFormValues = {
   currency_amount: number;
@@ -65,34 +68,36 @@ type TopupFormValues = {
   amount: number;
   price: number;
   description: string;
-  status: boolean | string;
+  status: boolean;
   sort_order: number;
 };
 
 // ============ VALIDATION ============
-const fieldSchema = yup
-  .object({
-    label: yup.string().required("Label is required"),
-    type: yup.string().oneOf(["text", "number"]).required("Type is required"),
-    is_filterable: yup.boolean(),
-    status: yup.boolean(),
-    icon: yup
-      .mixed()
-      .test("fileSize", "Icon image must be less than 8MB.", (file) => {
-        if (!file) return true;
-        if (typeof file === "string") return true;
-        if (file instanceof File) return file.size <= MAX_FILE_SIZE;
-        return true;
-      })
-      .test("fileType", "Unsupported format", (file) => {
-        if (!file) return true;
-        if (typeof file === "string") return true;
-        if (file instanceof File) return SUPPORTED_FORMATS.includes(file.type);
-        return true;
-      })
-      .nullable(),
-  })
-  .required();
+const fieldSchema = yup.object({
+  label: yup.string().required("Label is required"),
+  type: yup.string().required("Please Select the field"),
+  is_filterable: yup.boolean().required(),
+  status: yup.boolean().required(),
+  icon: yup
+    .mixed<File | string>()
+    .nullable()
+    .notRequired()
+    .test("fileSize", "Image size must be less than 8MB.", (value) =>
+      !value || typeof value === "string"
+        ? true
+        : (value as File).size <= MAX_FILE_SIZE
+    )
+    .test(
+      "fileType",
+      "Unsupported file format. (jpg, jpeg, png, webp)",
+      (value) =>
+        !value || typeof value === "string"
+          ? true
+          : SUPPORTED_FORMATS.includes((value as File).type)
+    ),
+});
+
+type FieldFormValuess = yup.InferType<typeof fieldSchema>;
 
 const topupSchema = yup.object({
   currency_name: yup.string().required("Currency name is required"),
@@ -179,34 +184,69 @@ const Page = () => {
     }
   }, [gameId]);
 
-  // For Choose State (Common Fields Modal)
+
+
   useEffect(() => {
     setChooseState(commonFields.map(() => ({ checked: false, type: "text" })));
   }, [isChooseModalOpen, commonFields]);
 
-  // ============ FORMS =============
-  // Game Field Form
-  const {
-    register: registerField,
+
+  
+  // const {
+  //   register: registerField,
+  //   handleSubmit: handleSubmitField,
+  //   setValue: setValueField,
+  //   reset: resetField,
+  //   watch: watchField,
+  //   formState: { errors: fieldErrors },
+  // } = useForm<FieldFormValuess>({
+  //   resolver: yupResolver(FieldFormValuess),
+  //   defaultValues: {
+  //     label: "",
+  //     type: "",
+  //     is_filterable: true,
+  //     status: true,
+  //     icon: null
+  //   },
+  // });
+
+
+    const {
+     register: registerField,
     handleSubmit: handleSubmitField,
     setValue: setValueField,
     reset: resetField,
     watch: watchField,
     formState: { errors: fieldErrors },
-  } = useForm<FieldFormValues>({
-    resolver: yupResolver(fieldSchema),
+    } = useForm({
+      resolver: yupResolver(fieldSchema),
     defaultValues: {
       label: "",
-      type: "text",
+      type: "",
       is_filterable: true,
       status: true,
-      icon: null,
-    },
-  });
+      icon: null
+    },    });
 
   // Top-up Form
-  const { reset: resetTopup } = useForm<TopupFormValues>({
-    resolver: yupResolver(topupSchema),
+  // const {
+  // } = useForm<TopupFormValues>({
+  //   resolver: yupResolver(topupSchema),
+  //   defaultValues: {
+  //     currency_name: "",
+  //     amount: 0,
+  //     price: 0,
+  //     description: "",
+  //     status: true,
+  //     sort_order: 0,
+  //   },
+  // });
+
+  
+    const {
+    
+    } = useForm({
+      resolver: yupResolver(topupSchema),
     defaultValues: {
       currency_name: "",
       amount: 0,
@@ -215,7 +255,7 @@ const Page = () => {
       status: true,
       sort_order: 0,
     },
-  });
+      });
 
   // ============ MODAL OPEN HANDLERS ===========
   // Game Field Modal
@@ -254,7 +294,7 @@ const Page = () => {
   // ============ CRUD HANDLERS ============
 
   // ===== Game Field ======
-  const onFieldSubmit = async (values: FieldFormValues) => {
+  const onFieldSubmit = async (values: FieldFormValuess) => {
     showLoader();
     try {
       const formData = new FormData();
@@ -821,15 +861,24 @@ const Page = () => {
         }}
         title={editingTopup ? "Edit Top-Up" : "Add Top-Up"}
       >
-        <TopupForm
-          gameId={gameId}
-          editingTopup={editingTopup || undefined}
-          onSuccess={() => {
-            getTopups();
-            setIsTopupModalOpen(false);
-            setEditingTopup(null);
-          }}
-        />
+       <TopupForm
+  gameId={gameId}
+  editingTopup={
+    editingTopup
+      ? {
+          id: editingTopup.id,
+          currency_name: editingTopup.currency_name,
+          packages: editingTopup.packages ?? [],
+        }
+      : undefined
+  }
+  onSuccess={() => {
+    getTopups();
+    setIsTopupModalOpen(false);
+    setEditingTopup(null);
+  }}
+/>
+
       </Modal>
 
       {/* --- Game Field Delete Modal --- */}

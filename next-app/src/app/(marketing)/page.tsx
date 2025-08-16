@@ -572,38 +572,24 @@ export default function GamesPage() {
 
       {/* Exclusive Offers section end */}
 
-      {user && (user.role === "Admin" || user.role === "Seller") && (
-        <section className="p-6 bg-blue-100">
-          <h2 className="text-xl font-bold">Special Section for {user.role}</h2>
-          <p>
-            Only logged-in <strong>Buyers</strong> or <strong>Sellers</strong>{" "}
-            can see this.
-          </p>
-        </section>
-      )}
-
-      <section className="my-24">
-        <div className="container">
-          <div className="sectionHeader">
-            <h2 className="lg:text-3xl text-2xl text-white font-bold mb-7">
-              TopUps Available
-            </h2>
-          </div>
-          <div className="flex flex-wrap justify-start items-stretch gap-5">
-            {topUps.map((game) => (
-              <div
-                key={game.game_id}
-                className="max-w-[277px] flex-[1_1_277px]"
-              >
-                <div className="card border border-orange-200 transition-all duration-300 hover:shadow-2xl shadow-orange-300 overflow-hidden relative group p-2 rounded-3xl z-0">
-                  {/* Main Game Image */}
-                  <Image
-                    src={`${basePath}${game.primary_image}`}
-                    alt={""}
-                    height={800}
-                    width={800}
-                    className="h-[500px] w-full rounded-xl block transition-all duration-300 group-hover:scale-110 object-cover"
-                  />
+      {user && (user.role === "Admin" || user.role === "Buyer") && (
+        <section className="my-24">
+          <div className="container">
+            <div className="sectionHeader">
+              <h2 className="lg:text-3xl text-2xl text-white font-bold mb-7">TopUps Available</h2>
+            </div>
+            <div className="flex flex-wrap justify-start items-stretch gap-5">
+              {topUps.map((game) => (
+                <div key={game.game_id} className="max-w-[277px] flex-[1_1_277px]">
+                  <div className="card border border-orange-200 transition-all duration-300 hover:shadow-2xl shadow-orange-300 overflow-hidden relative group p-2 rounded-3xl z-0">
+                    {/* Main Game Image */}
+                    <Image
+                      src={`http://localhost:8000/storage/${game.primary_image}`}
+                      alt={''}
+                      height={800}
+                      width={800}
+                      className="h-[500px] w-full rounded-xl block transition-all duration-300 group-hover:scale-110 object-cover"
+                    />
 
                   {/* Gradient Overlay */}
                   <div className="absolute bg-gradient-to-t from-black/60 to-white/0 inset-0 z-10 flex p-5 items-end justify-start">
@@ -621,29 +607,29 @@ export default function GamesPage() {
                         </div>
                       </div>
 
-                      {/* Game Info & Button */}
-                      <div className="text-start mt-5 text-white lg:-mb-[110px] lg:opacity-0 lg:group-hover:opacity-100 group-hover:mb-0 transition-all duration-300">
-                        <h4 className="lg:text-lg text-base font-semibold mb-5">
-                          {game.game_name}
-                        </h4>
+                        {/* Game Info & Button */}
+                        <div className="text-start mt-5 text-white lg:-mb-[110px] lg:opacity-0 lg:group-hover:opacity-100 group-hover:mb-0 transition-all duration-300">
+                          <h4 className="lg:text-lg text-base font-semibold mb-5">
+                            {game.game_name}
+                          </h4>
 
-                        <button
-                          onClick={() =>
-                            router.push(`/top-up-game/${game.game_id}`)
-                          }
-                          className="lg:rotate-x-180 lg:group-hover:rotate-x-0 border border-orange-400 rounded text-center h-10  w-full lg:group-hover:bg-orange-400 transition-all duration-300 delay-300 cursor-pointer"
-                        >
-                          Top Up Now
-                        </button>
+                          <button
+                            onClick={() => router.push(`/top-up-game/${game.game_id}`)}
+                            className="lg:rotate-x-180 lg:group-hover:rotate-x-0 border border-orange-400 rounded text-center h-10  w-full lg:group-hover:bg-orange-400 transition-all duration-300 delay-300 cursor-pointer"
+                          >
+                            Top Up Now
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
+
 
       <section className="my-24 hidden">
         <div className="container">
@@ -1047,11 +1033,10 @@ export default function GamesPage() {
                 {/* {activeIndex === index && (
                 )} */}
                 <div
-                  className={`grid transition-all duration-300 ${
-                    activeIndex === index
-                      ? "grid-rows-[1fr]"
-                      : "grid-rows-[0fr]"
-                  }`}
+                  className={`grid transition-all duration-300 ${activeIndex === index
+                    ? "grid-rows-[1fr]"
+                    : "grid-rows-[0fr]"
+                    }`}
                 >
                   <div className="overflow-hidden">
                     <div

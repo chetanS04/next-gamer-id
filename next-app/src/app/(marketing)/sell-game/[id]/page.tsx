@@ -1,22 +1,92 @@
+
+
 "use client";
 
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm } from "react-hook-form";
+import { z, ZodTypeAny } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "../../../../../utils/axios";
-import * as yup from "yup";
-import { yupResolver } from "@hookform/resolvers/yup";
 import { faStar } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import Image from "next/image";
-import { Game, GameField } from "@/common/interface";
+import Image from 'next/image';
 
-const basePath = process.env.NEXT_PUBLIC_UPLOAD_BASE;
+// 1. TYPES ---------------------------
+type GameField = {
+  id: number;
+  label: string;
+  type: "text" | "number";
+  icon?: string;
+  required?: boolean;
+};
 
-interface IFormValues {
-  [key: string]: string | number | FileList | undefined;
+const imageKeys = ["image1", "image2", "image3"] as const;
+type ImageKey = typeof imageKeys[number];
+
+
+
+
+function buildSchema(fields: GameField[]) {
+  const shape: Record<string, ZodTypeAny> = {};
+  // const shape: Record<string, ReturnType<typeof z.string>> = {};
+
+
+  // Dynamic fields
+  for (const field of fields) {
+    let validator: ZodTypeAny;
+
+    if (field.type === "number") {
+      validator = z.preprocess(
+        (v) => (typeof v === "string" && v !== "" ? parseFloat(v) : v),
+        z.number().refine((val) => typeof val === "number", { message: "Must be a number" })
+      );
+    } else {
+      validator = z.string();
+    }
+
+    if (field.required !== false) {
+      validator = validator.refine(
+        (val) => val !== undefined && val !== "",
+        { message: "This field is required" }
+      );
+    } else {
+      validator = validator.optional();
+    }
+
+    shape[field.label] = validator;
+  }
+
+  // Static price field
+  shape["price"] = z.preprocess(
+    (v) => (typeof v === "string" && v !== "" ? parseFloat(v) : v),
+    z
+      .number().refine((val) => typeof val === "number", { message: "Price must be a number" })
+      .min(0, { message: "Price is required" })
+  );
+
+  // Static images (fixing names to match your form)
+  const fileSchema = z
+    .instanceof(FileList)
+    .refine((files) => files.length > 0, { message: "Image is required" })
+    .refine(
+      (files) =>
+        ["image/jpeg", "image/png", "image/jpg"].includes(files[0]?.type),
+      { message: "Unsupported format (jpeg, jpg, png only)" }
+    )
+    .refine((files) => files[0]?.size <= 5 * 1024 * 1024, {
+      message: "Image too large (max 5MB)",
+    });
+
+  ["image1", "image2", "image3"].forEach((key) => {
+    shape[key] = fileSchema;
+  });
+
+  return z.object(shape);
 }
 
+
+// 3. REACT COMPONENT --------------------------
 const GameForm = () => {
   const { id } = useParams();
   const [fields, setFields] = useState<GameField[]>([]);
@@ -26,67 +96,38 @@ const GameForm = () => {
   const [submitSuccess, setSubmitSuccess] = useState("");
   const [submitError, setSubmitError] = useState("");
 
-  const validationSchema = React.useMemo(() => {
-    const shape: { [key: string]: yup.AnySchema } = {};
+  // Always build latest Zod schema based on fields
+  const formSchema = React.useMemo(() => buildSchema(fields), [fields]);
+type IFormValuess = z.infer<ReturnType<typeof buildSchema>>;
 
-    fields.forEach((field) => {
-      let validator =
-        field.type === "number"
-          ? yup.number().typeError("Must be a number")
-          : yup.string();
+  // const {
+  //   register,
+  //   handleSubmit,
+  //   formState: { errors, isSubmitting },
+  //   reset,
+  //   watch,
+  // } = useForm({
+  //   resolver: zodResolver(formSchema),
+  //   mode: "onBlur",
+  // });
 
-      if (field.required !== false) {
-        validator = validator.required("This field is required");
-      }
-      shape[field.label] = validator;
-    });
-
-    // Price validation
-    shape["price"] = yup
-      .number()
-      .typeError("Price must be a number")
-      .required("Price is required");
-
-    // File validation for images (max 5MB, jpeg/png/jpg formats)
-    const fileSchema = yup
-      .mixed()
-      .test("fileSize", "Image too large (max 5MB)", (value) => {
-        if (!value) return true;
-        if (!(value instanceof FileList)) return false;
-        return value.length === 0 || value[0]?.size <= 5 * 1024 * 1024;
-      })
-      .test(
-        "fileFormat",
-        "Unsupported format (jpeg, jpg, png only)",
-        (value) => {
-          if (!value) return true;
-          if (!(value instanceof FileList)) return false;
-          return (
-            value.length === 0 ||
-            ["image/jpeg", "image/png", "image/jpg"].includes(value[0]?.type)
-          );
-        }
-      );
-
-    shape["image1"] = fileSchema.required("Image 1 is required");
-    shape["image2"] = fileSchema.required("Image 2 is required");
-    shape["image3"] = fileSchema.required("Image 3 is required");
-
-    return yup.object().shape(shape);
-  }, [fields]);
 
   const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-    reset,
-    watch,
-  } = useForm<IFormValues>({
-    resolver: yupResolver(validationSchema),
-    mode: "onBlur",
-  });
+  register,
+  handleSubmit,
+  formState: { errors, isSubmitting },
+  reset,
+  watch,
+} = useForm<IFormValuess>({
+  resolver: zodResolver(formSchema),
+  mode: "onBlur",
+});
 
-  // Fetch dynamic fields and game name on mount
+
+  
+
+
+  // Fetch dynamic fields & game info
   useEffect(() => {
     const fetchFields = async () => {
       setFetchError("");
@@ -96,14 +137,9 @@ const GameForm = () => {
           axios.get(`/api/games/${id}/fields`),
           axios.get(`/api/games`),
         ]);
-        const dynamicFields = fieldData.fields || [];
-        setFields(dynamicFields);
-
-        // const game = (gamesData.games || []).find((g: FormData) => g.id == id);
-
-        const game = gamesData.games?.find((g: Game) => String(g.id) === id);
-
-        if (game) setGameName(game.name);
+        setFields(fieldData.fields || []);
+        const game = (gamesData.games || []).find((g:IFormValuess ) => String(g.id) === String(id));
+        if (game && game.name) setGameName(game.name);
       } catch {
         setFetchError("Failed to fetch form definitions. Please try again.");
       } finally {
@@ -113,36 +149,36 @@ const GameForm = () => {
     fetchFields();
   }, [id]);
 
-  // Submit handler: build FormData properly
-  const onSubmit: SubmitHandler<IFormValues> = async (data) => {
+  // Submit handler
+  const onSubmit = async (data:IFormValuess) => {
     setSubmitError("");
     setSubmitSuccess("");
-
     try {
       const formData = new FormData();
-
-      // Add dynamic fields (key = game_field_id, value = value)
-      fields.forEach((field) => {
-        const value = data[field.label];
-        if (value !== undefined && !(value instanceof FileList)) {
-          formData.append(String(field.id), String(value));
-        }
-      });
-
-      // Append static fields
-      formData.append("price", String(data.price));
-      formData.append("game_id", String(id)); // Required by backend
-      formData.append("status", "active"); // You can make this dynamic if needed
-
-      // Append images
-      (["image1", "image2", "image3"] as const).forEach((imgKey) => {
-        const fileList = data[imgKey];
+      // Append dynamic fields (except static ones)
+      fields
+        .filter(
+          (field) =>
+            !imageKeys.includes(field.label as ImageKey) && field.label !== "price"
+        )
+        .forEach((field) => {
+          const val = data[field.label];
+          if (val !== undefined && typeof val !== "object") {
+            formData.append(String(field.id), String(val));
+          }
+        });
+      // Static values
+      formData.append("price", String(data["price"]));
+      formData.append("game_id", String(id));
+      formData.append("status", "active");
+      // Images
+      imageKeys.forEach((key) => {
+        const fileList = data[key];
         if (fileList instanceof FileList && fileList.length > 0) {
-          formData.append(imgKey, fileList[0]);
+          formData.append(key, fileList[0]);
         }
       });
 
-      // Submit to backend
       await axios.post(`/api/games/${id}/submit`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
@@ -150,13 +186,11 @@ const GameForm = () => {
       setSubmitSuccess("Game details submitted successfully!");
       reset();
     } catch {
-      // const error = err as AxiosError<{ message?: string }>;
-
       setSubmitError("Failed to submit game details. Please try again.");
     }
   };
 
-  // Render image preview helper
+  // Image preview helper
   const renderPreview = (fileList: FileList | undefined) => {
     if (fileList && fileList.length > 0) {
       const url = URL.createObjectURL(fileList[0]);
@@ -164,10 +198,10 @@ const GameForm = () => {
         <Image
           src={url}
           alt="preview"
-          height={600}
-          width={600}
-          className="mt-2 max-h-[18.75rem] h-full rounded-2xl border border-white/30 object-contain shadow-glow"
+          className="mt-2 max-h-36 rounded border border-blue-500 object-contain shadow-glow"
           onLoad={() => URL.revokeObjectURL(url)}
+          width={200}
+          height={200}
         />
       );
     }
