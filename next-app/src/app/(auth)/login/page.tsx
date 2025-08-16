@@ -51,6 +51,7 @@ export default function LoginPage() {
       const user = res.user;
 
       localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("token", res.token);
       setUserDirectly(user);
 
       // Redirect based on role
@@ -76,7 +77,7 @@ export default function LoginPage() {
       <div
         className="min-h-screen bg-cover bg-center flex flex-col"
         style={{
-          backgroundImage: `url(${pubg.src})`, // ✅ Correct
+          backgroundImage: `url(${pubg.src})`, 
         }}
       >
         {/* Overlay */}
