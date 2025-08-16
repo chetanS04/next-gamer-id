@@ -2,11 +2,14 @@
 
 import { useState } from 'react'
 import Sidebar from '@/components/(dashboards)/BuyerSidebar'
+import ProtectedRoute from '@/components/(sheared)/ProtectedRoute'
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(true)
 
   return (
+    <ProtectedRoute role='Buyer'>    
+
     <div className="flex">
       {/* Sidebar */}
       <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} />
@@ -21,5 +24,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         {children}
       </main>
     </div>
+    </ProtectedRoute>
   )
 }
