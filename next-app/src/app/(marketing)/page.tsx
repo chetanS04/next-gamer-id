@@ -584,7 +584,7 @@ export default function GamesPage() {
                   <div className="card border border-orange-200 transition-all duration-300 hover:shadow-2xl shadow-orange-300 overflow-hidden relative group p-2 rounded-3xl z-0">
                     {/* Main Game Image */}
                     <Image
-                      src={`http://localhost:8000/storage/${game.primary_image}`}
+                      src={`${basePath}${game.primary_image}`}
                       alt={''}
                       height={800}
                       width={800}

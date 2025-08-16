@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -10,7 +8,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "../../../../../utils/axios";
 import { faStar } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import Image from 'next/image';
+import Image from "next/image";
+
+const basePath = process.env.NEXT_PUBLIC_UPLOAD_BASE;
 
 // 1. TYPES ---------------------------
 type GameField = {
@@ -22,15 +22,11 @@ type GameField = {
 };
 
 const imageKeys = ["image1", "image2", "image3"] as const;
-type ImageKey = typeof imageKeys[number];
-
-
-
+type ImageKey = (typeof imageKeys)[number];
 
 function buildSchema(fields: GameField[]) {
   const shape: Record<string, ZodTypeAny> = {};
   // const shape: Record<string, ReturnType<typeof z.string>> = {};
-
 
   // Dynamic fields
   for (const field of fields) {
@@ -39,17 +35,18 @@ function buildSchema(fields: GameField[]) {
     if (field.type === "number") {
       validator = z.preprocess(
         (v) => (typeof v === "string" && v !== "" ? parseFloat(v) : v),
-        z.number().refine((val) => typeof val === "number", { message: "Must be a number" })
+        z.number().refine((val) => typeof val === "number", {
+          message: "Must be a number",
+        })
       );
     } else {
       validator = z.string();
     }
 
     if (field.required !== false) {
-      validator = validator.refine(
-        (val) => val !== undefined && val !== "",
-        { message: "This field is required" }
-      );
+      validator = validator.refine((val) => val !== undefined && val !== "", {
+        message: "This field is required",
+      });
     } else {
       validator = validator.optional();
     }
@@ -61,7 +58,10 @@ function buildSchema(fields: GameField[]) {
   shape["price"] = z.preprocess(
     (v) => (typeof v === "string" && v !== "" ? parseFloat(v) : v),
     z
-      .number().refine((val) => typeof val === "number", { message: "Price must be a number" })
+      .number()
+      .refine((val) => typeof val === "number", {
+        message: "Price must be a number",
+      })
       .min(0, { message: "Price is required" })
   );
 
@@ -85,7 +85,6 @@ function buildSchema(fields: GameField[]) {
   return z.object(shape);
 }
 
-
 // 3. REACT COMPONENT --------------------------
 const GameForm = () => {
   const { id } = useParams();
@@ -98,7 +97,7 @@ const GameForm = () => {
 
   // Always build latest Zod schema based on fields
   const formSchema = React.useMemo(() => buildSchema(fields), [fields]);
-type IFormValuess = z.infer<ReturnType<typeof buildSchema>>;
+  type IFormValuess = z.infer<ReturnType<typeof buildSchema>>;
 
   // const {
   //   register,
@@ -111,21 +110,16 @@ type IFormValuess = z.infer<ReturnType<typeof buildSchema>>;
   //   mode: "onBlur",
   // });
 
-
   const {
-  register,
-  handleSubmit,
-  formState: { errors, isSubmitting },
-  reset,
-  watch,
-} = useForm<IFormValuess>({
-  resolver: zodResolver(formSchema),
-  mode: "onBlur",
-});
-
-
-  
-
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+    watch,
+  } = useForm<IFormValuess>({
+    resolver: zodResolver(formSchema),
+    mode: "onBlur",
+  });
 
   // Fetch dynamic fields & game info
   useEffect(() => {
@@ -138,7 +132,9 @@ type IFormValuess = z.infer<ReturnType<typeof buildSchema>>;
           axios.get(`/api/games`),
         ]);
         setFields(fieldData.fields || []);
-        const game = (gamesData.games || []).find((g:IFormValuess ) => String(g.id) === String(id));
+        const game = (gamesData.games || []).find(
+          (g: IFormValuess) => String(g.id) === String(id)
+        );
         if (game && game.name) setGameName(game.name);
       } catch {
         setFetchError("Failed to fetch form definitions. Please try again.");
@@ -150,7 +146,7 @@ type IFormValuess = z.infer<ReturnType<typeof buildSchema>>;
   }, [id]);
 
   // Submit handler
-  const onSubmit = async (data:IFormValuess) => {
+  const onSubmit = async (data: IFormValuess) => {
     setSubmitError("");
     setSubmitSuccess("");
     try {
@@ -159,7 +155,8 @@ type IFormValuess = z.infer<ReturnType<typeof buildSchema>>;
       fields
         .filter(
           (field) =>
-            !imageKeys.includes(field.label as ImageKey) && field.label !== "price"
+            !imageKeys.includes(field.label as ImageKey) &&
+            field.label !== "price"
         )
         .forEach((field) => {
           const val = data[field.label];

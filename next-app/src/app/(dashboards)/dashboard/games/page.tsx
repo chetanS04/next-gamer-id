@@ -126,9 +126,9 @@ function AdminPlacementManagement() {
       setValue("status", game.status);
       setValue("primary_image", game.primary_image ?? "");
       setValue("secondary_image", game.secondary_image ?? "");
-      setPreviewPrimary(`${baseUrl}${game.primary_image}`);
+      setPreviewPrimary(`${basePath}${game.primary_image}`);
       setPreviewSecondary(
-        game.secondary_image ? `${baseUrl}${game.secondary_image}` : null
+        game.secondary_image ? `${basePath}${game.secondary_image}` : null
       );
     } else {
       reset({ status: true });
@@ -538,14 +538,6 @@ function AdminPlacementManagement() {
               />
             )}
           </div>
-
-          {/* Status toggle */}
-          {/* <div className="flex items-center gap-2">
-            <label htmlFor="status" className="flex items-center">
-              <input type="checkbox" {...register('status')} id="status" className="mr-2" checked={isChecked} onChange={() => setValue('status', !isChecked)} />
-              <span>Status</span>
-            </label>
-          </div> */}
 
           {/* Status Toggle */}
           <div>
