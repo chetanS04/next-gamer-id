@@ -9,7 +9,6 @@ const instance = axios.create({
 
 
 instance.interceptors.request.use((config) => {
-  //const token = getCookieValue('XSRF-TOKEN');
   const token = localStorage.getItem("token");
   if (token) {
     config.headers['Authorization'] = `Bearer ${decodeURIComponent(token)}`;

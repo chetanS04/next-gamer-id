@@ -12,13 +12,13 @@ export const register = async (data: {
   password_confirmation: string;
 }) => {
   await getCSRF();
-  return axios.post('/register', data);
+  return axios.post('/api/register', data);
 };
 
 // 3. Login
 export const login = async (email: string, password: string) => {
   await getCSRF();
-  const response = await axios.post('/login', { email, password });
+  const response = await axios.post('/api/login', { email, password });
   return response.data; // return the full response data
 };
 
@@ -31,4 +31,4 @@ export const logout = async () => {
 };
 
 // 5. Get current authenticated user
-export const getUser = () => axios.get('/user');
+export const getUser = () => axios.get('/api/user');
