@@ -3,9 +3,10 @@ import axios from 'axios';
 
 const instance = axios.create({
   // baseURL: 'http://localhost:8000',
-  baseURL: 'https://api.idbazaar.topntech.com',
+  baseURL: 'https://www.api.idbazaar.topntech.com',
   withCredentials: true,
 });
+
 
 
 instance.interceptors.request.use((config) => {
