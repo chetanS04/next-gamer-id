@@ -150,15 +150,24 @@ const Navbar = () => {
 
 
             {/* Wallet Icon Circle */}
-            <div className="bg-gc-900 h-[3.5rem] shadow-lg shadow-white/5 aspect-square rounded-full flex justify-center items-center overflow-hidden">
-              <Wallet className="text-white size-6" />
-            </div>
+            {user && (user.role === "Seller" || user.role === "Admin" || user.role === "Buyer") && (
 
+              <Link href="/wallet">
+                <div className="bg-gc-900 h-[3.5rem] shadow-lg shadow-white/5 aspect-square rounded-full flex justify-center items-center overflow-hidden cursor-pointer hover:shadow-white/10 transition">
+                  <Wallet className="text-white size-6" />
+                </div>
+              </Link>
+            )}
             {/* Store Icon Circle */}
-            <div className="bg-gc-900 mr-3 h-[3.5rem] shadow-lg shadow-white/5 aspect-square rounded-full flex justify-center items-center overflow-hidden">
-              <StoreIcon className="text-white size-6" />
-            </div>
+            {user && (user.role === "Seller") && (
+              <Link href="/seller-store">
+                <div className="bg-gc-900 h-[3.5rem] shadow-lg shadow-white/5 aspect-square rounded-full flex justify-center items-center overflow-hidden cursor-pointer hover:shadow-white/10 transition">
+                  <StoreIcon className="text-white size-6" />
+                </div>
+              </Link>
+            )}
           </div>
+
 
 
           <div className='flex justify-center gap-4'>
